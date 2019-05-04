@@ -1,47 +1,74 @@
 /*
 TODO:
-- fix SAY funcs on import old files
-- X download font data
-- X asian fonts
-- X translate new text
-	- X add "Write your game's title here"
-	- X make sure localization for all font & settings stuff is there
-- X warn people about missing characters in fonts?
-	- localize warning!!
-- X consider moving export options into settings panel??
-- X pick bitsy font file extension (".bitsyfont??")
-- X custom fonts
-- X fix blinky bug in editor (it's as if clearInterval isn't called for the room renderer)
-- text direction?
-- update version number
-- update default game data
-X another pass on font names & descriptions
-	X unicode vs ucs
-X change ".txt" to ".bitsyfont" everywhere
-
-test text
-你好！ 你好 吗 안녕 하세요, 당신은 어떠 세요 こんにち は世界ﾀ ﾁﾂﾃ ﾄ界ﾅﾆﾇ ﾈﾉ界ﾊﾍ カｶ界 안ㅠ hello
+- untangle local & external resource use in font manager (still more to do here)
 */
-function FontManager() {
+
+function FontManager(useExternalResources) {
+
+if (useExternalResources === undefined || useExternalResources === null) {
+	useExternalResources = false;
+}
+
+var self = this;
 
 var fontExtension = ".bitsyfont";
+this.GetExtension = function() {
+	return fontExtension;
+}
 
+// place to store font data that is part of the local game data
+var localResources = {};
+
+// place to store font data fetched from a server (only used in editor)
 var externalResources = null;
-this.LoadResources = function(filenames) {
-	// NOTE : only used by the editor -- should I move this out somehow so it isn't sitting in the exported games?
-	externalResources = new ResourceLoader(); // WARNING : this class doesn't exist in exported game
+if (useExternalResources) {
+	externalResources = new ResourceLoader();// NOTE : this class doesn't exist in exported game
+}
+
+this.LoadResources = function(filenames, onLoadAll) {
+	if (!useExternalResources)
+		return;
+
+	// TODO : is this being called too many times?
+	var onLoad = function() {
+		var count = externalResources.getResourceLoadedCount();
+
+		if (count >= filenames.length && onLoadAll != null) {
+			onLoadAll();
+		}
+	}
+
 	for (var i = 0; i < filenames.length; i++) {
-		externalResources.load("bitsyfont", filenames[i]);
+		externalResources.load("bitsyfont", filenames[i], onLoad);
 	}
 }
 
-// "manually" add resource
+// manually add resource
 this.AddResource = function(filename, fontdata) {
-	externalResources.set(filename, fontdata);
+	if (useExternalResources) {
+		externalResources.set(filename, fontdata);
+	}
+	else {
+		localResources[filename] = fontdata;
+	}
+}
+
+this.ContainsResource = function(filename) {
+	if (useExternalResources) {
+		return externalResources.contains(filename);
+	}
+	else {
+		return localResources[filename] != null;
+	}
 }
 
 function GetData(fontName) {
-	return externalResources.get(fontName + fontExtension);
+	if (useExternalResources) {
+		return externalResources.get(fontName + fontExtension);
+	}
+	else {
+		return localResources[fontName + fontExtension];
+	}
 }
 this.GetData = GetData;
 
@@ -51,31 +78,23 @@ function Create(fontData) {
 this.Create = Create;
 
 this.Get = function(fontName) {
-	var fontData = "";
-	if (externalResources != null) {
-		// TODO : need access to GetData method.. (self, =>, other?)
-		fontData = GetData(fontName); // in editor
-	}
-	else {
-		fontData = document.getElementById(fontName).text.slice(1); // exported
-	}
-
-	return Create(fontData); // also need access to create
+	var fontData = self.GetData(fontName);
+	return self.Create(fontData);
 }
 
 function Font(fontData) {
 	var name = "unknown";
 	var width = 6; // default size so if you have NO font or an invalid font it displays boxes
 	var height = 8;
-	var fontdata = {};
-	var invalidCharData = [];
+	var chardata = {};
+	var invalidCharData = {};
 
 	this.getName = function() {
 		return name;
 	}
 
 	this.getData = function() {
-		return fontdata;
+		return chardata;
 	}
 
 	this.getWidth = function() {
@@ -88,19 +107,27 @@ function Font(fontData) {
 
 	this.hasChar = function(char) {
 		var codepoint = char.charCodeAt(0);
-		return fontdata[codepoint] != null;
+		return chardata[codepoint] != null;
 	}
 
 	this.getChar = function(char) {
 
 		var codepoint = char.charCodeAt(0);
 
-		if (fontdata[codepoint] != null) {
-			return fontdata[codepoint];
+		if (chardata[codepoint] != null) {
+			return chardata[codepoint];
 		}
 		else {
 			return invalidCharData;
 		}
+	}
+
+	this.allCharCodes = function() {
+		var codeList = [];
+		for (var code in chardata) {
+			codeList.push(code);
+		}
+		return codeList;
 	}
 
 	function parseFont(fontData) {
@@ -110,11 +137,17 @@ function Font(fontData) {
 		var lines = fontData.split("\n");
 
 		var isReadingChar = false;
+		var isReadingCharProperties = false;
 		var curCharLineCount = 0;
 		var curCharCode = 0;
 
 		for (var i = 0; i < lines.length; i++) {
 			var line = lines[i];
+
+			if (line[0] === "#") {
+				continue; // skip comment lines
+			}
+
 			if (!isReadingChar) {
 				// READING NON CHARACTER DATA LINE
 				var args = line.split(" ");
@@ -127,34 +160,84 @@ function Font(fontData) {
 				}
 				else if (args[0] == "CHAR") {
 					isReadingChar = true;
+					isReadingCharProperties = true;
+
 					curCharLineCount = 0;
 					curCharCode = parseInt(args[1]);
-					fontdata[curCharCode] = [];
+					chardata[curCharCode] = { 
+						width: width,
+						height: height,
+						offset: {
+							x: 0,
+							y: 0
+						},
+						spacing: width,
+						data: []
+					};
 				}
 			}
 			else {
-				// READING CHARACTER DATA LINE
-				for (var j = 0; j < width; j++)
-				{
-					fontdata[curCharCode].push( parseInt(line[j]) );
+				// CHAR PROPERTIES
+				if (isReadingCharProperties) {
+					var args = line.split(" ");
+					if (args[0].indexOf("CHAR_") == 0) { // Sub-properties start with "CHAR_"
+						if (args[0] == "CHAR_SIZE") {
+							// Custom character size - overrides the default character size for the font
+							chardata[curCharCode].width = parseInt(args[1]);
+							chardata[curCharCode].height = parseInt(args[2]);
+							chardata[curCharCode].spacing = parseInt(args[1]); // HACK : assumes CHAR_SIZE is always declared first
+						}
+						else if (args[0] == "CHAR_OFFSET") {
+							// Character offset - shift the origin of the character on the X or Y axis
+							chardata[curCharCode].offset.x = parseInt(args[1]);
+							chardata[curCharCode].offset.y = parseInt(args[2]);
+						}
+						else if (args[0] == "CHAR_SPACING") {
+							// Character spacing:
+							// specify total horizontal space taken up by the character
+							// lets chars take up more or less space on a line than its bitmap does
+							chardata[curCharCode].spacing = parseInt(args[1]);
+						}
+					}
+					else {
+						isReadingCharProperties = false;
+					}
 				}
 
-				curCharLineCount++;
-				if (curCharLineCount >= height) {
-					isReadingChar = false;
+				// CHAR DATA
+				if (!isReadingCharProperties) {
+					// READING CHARACTER DATA LINE
+					for (var j = 0; j < chardata[curCharCode].width; j++)
+					{
+						chardata[curCharCode].data.push( parseInt(line[j]) );
+					}
+
+					curCharLineCount++;
+					if (curCharLineCount >= height) {
+						isReadingChar = false;
+					}
 				}
 			}
 		}
 
 		// init invalid character box
-		invalidCharData = [];
+		invalidCharData = { 
+			width: width,
+			height: height,
+			offset: {
+				x: 0,
+				y: 0
+			},
+			spacing: width, // TODO : name?
+			data: []
+		};
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {
 				if (x < width-1 && y < height-1) {
-					invalidCharData.push(1);
+					invalidCharData.data.push(1);
 				}
 				else {
-					invalidCharData.push(0);
+					invalidCharData.data.push(0);
 				}
 			}
 		}

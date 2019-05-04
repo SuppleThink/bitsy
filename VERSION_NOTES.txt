@@ -1,5 +1,76 @@
-4.9:
+6.0:
+- new combined exits & endings tool!
+- exits are two-way by default
+- change exit direction with one button
+- new exit transition animations!
+- exit thumbnails are shortcut to rooms
+- toggle exits & endings visibility
+- move exits & endings in room without tool open
+- move exits & endings in two ways:
+-- click and drag in the room
+-- OR use the "move" button
+- updated translations for several languages
+
+5.5:
+- editor translated into Arabic, Chinese, and Polish
+***** shout outs to the translators! *****
+Ahmed Khalifa (Arabic)
+Ray Song (Chinese)
+Mateusz Teklak (Polish)
+******************************************
+- new Arabic pixel font
+- right to left text
+- bitsyfont supports variable-width fonts
+
+
+5.4:
+- editor translated into Esperanto, Estonian, Hungarian, Icelandic, Russian
+***** thank you translators!!!! :) *****
+Ariel J Moody (Esperanto)
+Raul (Estonian)
+Ádám Török (Hungarian)
+Game Makers Iceland (Icelandic)
+Vinvirinvi & Onion (Russian)
+****************************************
+- link to updated Bitsy tutorial by Claire Morley
+- added link to "games made with Bitsy" on itch.io
+
+5.3:
+- performance improvements:
+-- speed up game loading time with new renderer
+-- improve editor responsiveness by only loading thumbnails when needed
+
+5.2:
+- {say} function re-enabled
+- fix weird scrolling in mobile
+- default game loads correctly
+
+5.1:
+- perf improvement: hide font data in game data by default
+--- added toggle button to show/hide font data
+- bugfix: avatar moved after leaving dialog
+- bugfix: too many keys being ignored after leaving dialog
+
+5.0:
+- editor translated into French, Portuguese, Spanish, Italian, Swedish, German
+***** huge thanks to the translators *****
+Peter Februar & Dorian Beaugendre (French)
+Bruno Silva (Portuguese)
+Marina Díez (Spanish & Italian)
+Em (Swedish)
+Kai Werder & Matthias Löwe (German)
+******************************************
+- new fonts to display European and Asian characters
 - new settings panel!
+- functions to add drawings to dialog: {printSprite}, {printTile}, {printItem}
+- {print} function replaces deprecated {say} function
+- downloaded game uses game title for file name
+- when creating animations, the second frame starts as a copy of the first
+- touch controls work on whole exported page, not just the game window
+- you can download game data as separate ".bitsy" file
+- bugfix: reset didn't reset game title
+- bugfix: player got stuck moving in one direction
+- bugfix: sometimes game window blinked in editor during play
 
 4.8:
 - fix broken gif recording

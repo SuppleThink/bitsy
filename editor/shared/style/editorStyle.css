@@ -208,6 +208,10 @@ input {
 	overflow:auto;
 }
 
+.panelBarClose {
+	float: right;
+}
+
 #gifDownload .material-icons {
 	line-height: 100%;
 	vertical-align: middle;
@@ -459,6 +463,14 @@ input {
 .advDialogTop {
 	margin-bottom: 10px;
 	height: 30px;
+}
+
+.advDialogBlockName {
+	float: left;
+}
+
+.advDialogBlockDelete {
+	float: right;
 }
 
 .advDialogIcon {
