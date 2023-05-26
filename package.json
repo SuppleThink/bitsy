@@ -7,9 +7,7 @@
     "build": "",
     "dev": "",
     "deploy": "",
-    "docker-build": "docker build -t je-bitsy .",
-    "docker-run": "docker run -it -d -p 8080:80 je-bitsy",
-    "docker": "npm run docker-build && npm run docker-run"
+    "docker": "docker-compose up -d"
   },
   "devDependencies": {
     "ssh2": "^1.11.0"
