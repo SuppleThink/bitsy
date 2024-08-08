@@ -1,3 +1,58 @@
+## 8.12
+
+- docs: add locked door guide (@vaasut)
+- docs: add tune tool documentation
+- docs: add blip tool documentation
+- feature: blip tool: add re-generate button (@nashalexander)
+- feature: blip tool: tweaks to menu layout & tool name
+- feature: room tool: grid & wall visibility settings are saved
+- feature: dialog tool: "none" option for exit transitions from dialog
+- fix: fixed memory leak when editing rooms with large numbers of unique tiles (such as those exported by pixsy)
+- fix: game data text wasn't updating with edits from other tools
+- fix: added missing docs link to game tool
+- fix: copying drawings no longer loses animation frames
+- fix: reset game doesn't break title text
+- fix: game & dialog tools were opening at unexpected times
+
+## 8.11
+
+- game tool: combines the features of the download, settings, and game data tools into one tool
+
+## 8.10
+
+- fix: fix bug rendering exits and endings
+
+## 8.9
+
+- new & updated russian translations by Paul Bid (павел бид)
+- fix: fix bug where editing tiles would break room rendering
+
+## 8.8
+
+- added brazilian portuguese translations by marco
+- add information to "upload to itch" documentation page
+- hook up localization to tune and blip tools
+- fix: copy room didn't copy everything
+- fix: memory leak in cache clearing
+- fix: localization was broken for room tool
+
+## 8.7
+
+- fix: Fix y-coordinate typo in createExitData (Pirijuamps)
+
+## 8.6
+
+- localization: added Ukrainian translation by leonid.codes
+- feature: add apple touch icon for iOS safari
+- fix: fix bug where {exit} undid the "locked" property state
+- fix: fix bug where clicking on paint canvas undid drawing name changes
+- docs: updated the tutorials page to include new tutorials on bitsy dialogs, the bitsy museum hack, and a bitsy handout for beginners!
+- docs: update bitsy system API documentation to v0.2
+
+## 8.5
+
+- fix:  Multiple {pg} (pagebreak) commands break dialogue execution #190 
+
 ## 8.4
 
 - documentation!

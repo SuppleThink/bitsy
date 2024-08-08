@@ -45,10 +45,7 @@ function PaintTool(canvas, menuElement) {
 	canvas.addEventListener("touchmove", onTouchMove);
 	canvas.addEventListener("touchend", onTouchEnd);
 
-	// TODO : 
 	function onMouseDown(e) {
-		e.preventDefault();
-		
 		if (isPlayMode) {
 			return; //can't paint during play mode
 		}
@@ -95,14 +92,6 @@ function PaintTool(canvas, menuElement) {
 		bitsyLog("?????", "editor");
 		if (isPainting) {
 			isPainting = false;
-
-			// force tile to re-render
-			// renderer.ClearCache();
-			// renderer.DeleteDrawing(drawing);
-			if (roomTool) {
-				// roomTool.renderer.ClearCache();
-				roomTool.select(roomTool.getSelected());
-			}
 
 			updateDrawingData();
 			refreshGameData();

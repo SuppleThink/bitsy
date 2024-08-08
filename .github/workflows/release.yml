@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # setup
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm ci
 
       # build resources
@@ -28,7 +28,7 @@ jobs:
       # publish
       - name: get version
         id: version
-        uses: martinbeentjes/npm-get-version-action@v1.2.3
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
       - name: publish to itch.io
         uses: josephbmanley/butler-publish-itchio-action@v1.0.3
         env:
